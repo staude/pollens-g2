@@ -21,9 +21,11 @@ export function dayLabel(date: Date, dayIndex: number): string {
   return `${prefix} ${dd}.${mm}.`
 }
 
-/** Belastung als 3er-Blockbalken: ░░░ / █░░ / ██░ / ███ */
+/** Belastung als 3er-Blockbalken: □□□ / ■□□ / ■■□ / ■■■
+ *  (■/□ statt █/░ — Schattierungsbloecke fehlen im G2-Font,
+ *  vgl. design-guidelines "Useful Unicode Characters"). */
 export function levelBar(level: Level): string {
-  return '█'.repeat(level) + '░'.repeat(3 - level)
+  return '■'.repeat(level) + '□'.repeat(3 - level)
 }
 
 const LEVEL_NAMES = ['-', 'gering', 'mittel', 'hoch'] as const
