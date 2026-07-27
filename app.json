@@ -1,0 +1,28 @@
+{
+  "package_id": "net.staude.pollensg2",
+  "name": "PolLens",
+  "version": "0.1.0",
+  "description": "Zeigt die Pollenbelastung an Ihrem Standort direkt auf der Brille: sechs Pollenarten (Gräser, Birke, Erle, Beifuß, Ambrosia, Olive) mit Belastungsstufen für heute und die nächsten drei Tage, plus Tagesverlauf (früh/mittags/abends) je Pollenart. Daten vom europäischen CAMS-Modell über Open-Meteo, Standort über die Even-App.",
+  "tagline": "Pollenflug im Blick — direkt auf der Brille",
+  "author": "Frank Neumann-Staude",
+  "edition": "202601",
+  "min_app_version": "0.1.0",
+  "min_sdk_version": "0.0.12",
+  "entrypoint": "index.html",
+  "permissions": [
+    {
+      "name": "location",
+      "desc": "Ermittelt Ihren Standort, um die Pollenvorhersage für Ihre Region zu laden."
+    },
+    {
+      "name": "network",
+      "desc": "Lädt die Pollenvorhersage von Open-Meteo.",
+      "whitelist": [
+        "https://air-quality-api.open-meteo.com",
+        "https://ipwho.is",
+        "https://ipapi.co"
+      ]
+    }
+  ],
+  "supported_languages": ["de"]
+}
