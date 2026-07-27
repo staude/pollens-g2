@@ -34,7 +34,9 @@ Daten von Open-Meteo (Air-Quality-API, CAMS-Europa-Modell).
 - `src/pollen.ts` - API-Client (Open-Meteo Air Quality): 4 Tage stuendlich,
   Aggregation je Tag (Spitzenwert + Tagesabschnitte), Stufen-Klassifikation.
 - `src/location.ts` - Standort: URL-Override, getAppLocation, navigator, IP.
-- `src/format.ts` - Labels, Blockbalken (░/█), Tages-Labels, clamp.
+- `src/i18n.ts` - Zweisprachige UI-Texte (de/en), Muster dorfkino-g2:
+  Sprache beim Start aus navigator.language, Fallback en, `?lang=de|en`.
+- `src/format.ts` - Labels, Blockbalken (■/□), Tages-Labels, clamp.
 - `src/render.ts` - Renderer (text/list), prueft rebuild-Ergebnis, Fallback.
 - `src/phone.ts` - Handy-Seite (WebView), Pflicht fuers Store-Review.
 - `src/main.ts` - State-Machine (loading/overview/detail/error).
@@ -70,3 +72,8 @@ uebernommen -> Kandidaten fuer das Shared-Paket `evenapps-ui`
 - Navigation: Einfachtipp waehlt, Doppeltipp zurueck bzw. beendet auf der
   Uebersicht. Text-Detailseite scrollt auf Hardware NICHT — Rumpf ist
   bewusst kurz gehalten (7 Zeilen).
+- Zweisprachig de/en (Pflicht der Linie, s. design-evenapps.md): alle
+  UI-Texte inkl. Pollenart-Namen ueber i18n.ts/t(). Achtung: SPECIES
+  (pollen.ts) zieht die Namen beim Modul-Import — LOCALE steht vorher fest.
+- Balken-Zeichen: ■/□ statt █/░ — die Schattierungsbloecke fehlen im
+  G2-Font (im Simulator verifiziert, Zeichen aus den design-guidelines).

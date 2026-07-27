@@ -17,10 +17,11 @@ import {
 import { getLocation, type GeoResult } from './location'
 import { pollenForecast, type DayForecast, type SpeciesDay } from './pollen'
 import { clamp, dayLabel, detailBody, overviewTitle, speciesRow } from './format'
+import { t } from './i18n'
 import { Renderer } from './render'
 import { initPhoneUi } from './phone'
 
-const TITLE = 'POLLEN'
+const TITLE = t('title')
 
 type OverviewState = {
   name: 'overview'
@@ -57,17 +58,17 @@ async function main(): Promise<void> {
     busy = true
     try {
       state = { name: 'loading' }
-      phone.setStatus('Standort wird ermittelt ...')
-      await view.text(TITLE, 'Standort wird ermittelt ...')
+      phone.setStatus(t('locating'))
+      await view.text(TITLE, t('locating'))
       const geo = await getLocation(bridge)
 
-      phone.setStatus('Lade Pollenvorhersage ...')
-      await view.text(TITLE, 'Lade Pollenvorhersage ...')
+      phone.setStatus(t('loadingForecast'))
+      await view.text(TITLE, t('loadingForecast'))
       const days = await pollenForecast(geo.lat, geo.lon)
 
       if (days.length === 0) {
-        phone.setStatus('Keine Vorhersagedaten erhalten.')
-        state = { name: 'error', message: 'Keine Vorhersagedaten erhalten.' }
+        phone.setStatus(t('noData'))
+        state = { name: 'error', message: t('noData') }
         await renderError()
         return
       }
@@ -75,7 +76,7 @@ async function main(): Promise<void> {
       state = { name: 'overview', geo, days, dayIndex: 0 }
       await renderOverview()
     } catch (e) {
-      phone.setStatus(`Fehler beim Laden: ${errMsg(e)}`)
+      phone.setStatus(t('phLoadError', { msg: errMsg(e) }))
       state = { name: 'error', message: errMsg(e) }
       await renderError()
     } finally {
@@ -94,9 +95,9 @@ async function main(): Promise<void> {
     // Zeile 0 = No-Op-Kopfzeile (Firmware-Auto-Select), Arten ab Zeile 1,
     // letzte Zeile wechselt den Tag.
     const items = [
-      '- Pollenart wählen -',
+      t('speciesHeader'),
       ...day.species.map(speciesRow),
-      `> ${dayLabel(nextDay.date, nextIndex)} anzeigen`,
+      t('nextDay', { day: dayLabel(nextDay.date, nextIndex) }),
     ]
     await view.list(title, items)
   }
@@ -113,10 +114,7 @@ async function main(): Promise<void> {
 
   async function renderError(): Promise<void> {
     if (state.name !== 'error') return
-    await view.text(
-      'FEHLER',
-      `${state.message}\n\nTipp: erneut versuchen\nDoppeltipp: beenden`,
-    )
+    await view.text(t('errorTitle'), `${state.message}\n\n${t('errorHint')}`)
   }
 
   async function rerender(): Promise<void> {
@@ -128,7 +126,7 @@ async function main(): Promise<void> {
       case 'error':
         return renderError()
       case 'loading':
-        return view.text(TITLE, 'Lade Pollenvorhersage ...')
+        return view.text(TITLE, t('loadingForecast'))
     }
   }
 

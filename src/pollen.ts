@@ -7,12 +7,13 @@
 // (frueh 6-12, mittags 12-18, abends 18-24) fuer die Detailansicht.
 
 import { fetchJson } from './http'
+import { t } from './i18n'
 
 export type Level = 0 | 1 | 2 | 3 // keine / gering / mittel / hoch
 
 export interface Species {
   key: string // API-Feldname, z. B. "grass_pollen"
-  name: string // Anzeigename
+  name: string // Anzeigename (lokalisiert, s. i18n.ts)
   thresholds: [number, number, number] // Koerner/m³ ab denen gering/mittel/hoch gilt
 }
 
@@ -20,12 +21,12 @@ export interface Species {
 // Skalen: Graeser und Kraeuter wirken schon bei niedrigen Konzentrationen,
 // Baumpollen erst bei deutlich hoeheren.
 export const SPECIES: Species[] = [
-  { key: 'grass_pollen', name: 'Gräser', thresholds: [1, 20, 50] },
-  { key: 'birch_pollen', name: 'Birke', thresholds: [1, 10, 100] },
-  { key: 'alder_pollen', name: 'Erle', thresholds: [1, 10, 100] },
-  { key: 'mugwort_pollen', name: 'Beifuß', thresholds: [1, 10, 30] },
-  { key: 'ragweed_pollen', name: 'Ambrosia', thresholds: [1, 5, 20] },
-  { key: 'olive_pollen', name: 'Olive', thresholds: [1, 10, 100] },
+  { key: 'grass_pollen', name: t('spGrass'), thresholds: [1, 20, 50] },
+  { key: 'birch_pollen', name: t('spBirch'), thresholds: [1, 10, 100] },
+  { key: 'alder_pollen', name: t('spAlder'), thresholds: [1, 10, 100] },
+  { key: 'mugwort_pollen', name: t('spMugwort'), thresholds: [1, 10, 30] },
+  { key: 'ragweed_pollen', name: t('spRagweed'), thresholds: [1, 5, 20] },
+  { key: 'olive_pollen', name: t('spOlive'), thresholds: [1, 10, 100] },
 ]
 
 export interface SpeciesDay {
@@ -59,7 +60,7 @@ export async function pollenForecast(lat: number, lon: number): Promise<DayForec
   const data = (await fetchJson(url, 10_000)) as any
 
   const times: string[] = data?.hourly?.time ?? []
-  if (!times.length) throw new Error('Keine Vorhersagedaten erhalten')
+  if (!times.length) throw new Error(t('noData'))
 
   // Stundenindizes den Tagen zuordnen (API liefert lokale Zeit "YYYY-MM-DDTHH:MM")
   const dayKeys: string[] = []
@@ -105,7 +106,7 @@ export async function pollenForecast(lat: number, lon: number): Promise<DayForec
   const firstKey = SPECIES[0].key
   const allNull = (data.hourly[firstKey] ?? []).every((v: unknown) => v == null)
   if (!anyValue && allNull) {
-    throw new Error('Für diesen Standort gibt es keine Pollendaten (nur Europa).')
+    throw new Error(t('noCoverage'))
   }
   return days
 }

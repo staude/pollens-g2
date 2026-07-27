@@ -7,6 +7,7 @@
 
 import type { DayForecast } from './pollen'
 import { levelName } from './format'
+import { t } from './i18n'
 import type { GeoResult } from './location'
 
 const CSS = `
@@ -89,17 +90,13 @@ export function initPhoneUi(): PhoneUi {
   app.innerHTML = `
     <main class="wrap">
       <div class="head">${ICON_SVG}<h1>PolLens</h1></div>
-      <p class="tagline">Pollenflug im Blick &mdash; direkt auf der Brille</p>
-      <div class="status" id="ph-status">Standort wird ermittelt ...</div>
-      <div class="label">Belastung heute</div>
+      <p class="tagline">${t('phTagline')}</p>
+      <div class="status" id="ph-status">${t('locating')}</div>
+      <div class="label">${t('phToday')}</div>
       <div class="rows" id="ph-rows"></div>
-      <div class="label">Bedienung auf der Brille</div>
-      <p class="hints">
-        <b>Tippen</b> &ndash; Pollenart &ouml;ffnen (Tagesverlauf), unterste Zeile wechselt den Tag<br>
-        <b>Wischen</b> &ndash; Liste scrollen<br>
-        <b>Doppeltippen</b> &ndash; zur&uuml;ck / beenden
-      </p>
-      <p class="foot">Daten: Open-Meteo, CAMS-Europa-Modell (CC BY 4.0) &middot; Stufen sind N&auml;herungswerte, keine medizinische Beratung</p>
+      <div class="label">${t('phControls')}</div>
+      <p class="hints">${t('phHints')}</p>
+      <p class="foot">${t('phFooter')}</p>
     </main>`
 
   const statusEl = app.querySelector<HTMLDivElement>('#ph-status')!
@@ -110,13 +107,16 @@ export function initPhoneUi(): PhoneUi {
       statusEl.textContent = text
     },
     setForecast(today: DayForecast, geo: GeoResult): void {
-      const src = geo.source === 'ip' ? ' (ungefähr, per IP)' : ''
+      const src = geo.source === 'ip' ? t('phApprox') : ''
       const worst = today.species[0]
       const summary =
         worst && worst.level > 0
-          ? `Stärkste Belastung heute: <b>${escapeHtml(worst.species.name)}</b> (${levelName(worst.level)})`
-          : '<b>Heute keine nennenswerte Pollenbelastung.</b>'
-      statusEl.innerHTML = `${summary}${src} &ndash; Details laufen auf der Brille.`
+          ? t('phSummary', {
+              name: escapeHtml(worst.species.name),
+              lvl: levelName(worst.level),
+            })
+          : t('phNone')
+      statusEl.innerHTML = `${summary}${src} ${t('phOnGlasses')}`
       rowsEl.innerHTML = today.species
         .map((d) => {
           const lvl = levelName(d.level)

@@ -10,6 +10,9 @@ eine Pollenart öffnet den Tagesverlauf (früh/mittags/abends).
 Daten: [Open-Meteo Air-Quality-API](https://open-meteo.com/en/docs/air-quality-api)
 (CAMS-Europa-Modell, CC BY 4.0, ohne API-Key). Abdeckung: Europa.
 
+Zweisprachig (Deutsch/Englisch): Sprache folgt der Systemsprache des
+Handys, Fallback Englisch. Test-Override: `?lang=de` bzw. `?lang=en`.
+
 ## Setup
 
 ```bash

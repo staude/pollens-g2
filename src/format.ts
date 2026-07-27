@@ -1,23 +1,22 @@
 // Formatierung fuer die Brille. Monochrom, ein Blick genuegt: Belastung als
 // Unicode-Blockbalken (Designsprache evenapps), kompakte Zeilen.
 // Listen-Items: max. 64 Zeichen (SDK-Grenze). Umlaute und ß rendert der
-// G2-Font korrekt (hardware-geprueft, dorfkino-g2).
+// G2-Font korrekt (hardware-geprueft, dorfkino-g2). UI-Texte via i18n.ts.
 
 import type { DayForecast, Level, SpeciesDay } from './pollen'
+import { t, weekdays } from './i18n'
 
 /** Auf max. `max` Zeichen kuerzen (ohne Ellipsis-Glyph, firmware-sicher). */
 export function clamp(s: string, max: number): string {
   return s.length <= max ? s : s.slice(0, max)
 }
 
-const WEEKDAYS = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa']
-
-/** "Heute 27.07." / "Morgen 28.07." / "Di 29.07." */
+/** "Heute 27.07." / "Morgen 28.07." / "Di 29.07." bzw. en-Aequivalent */
 export function dayLabel(date: Date, dayIndex: number): string {
   const dd = String(date.getDate()).padStart(2, '0')
   const mm = String(date.getMonth() + 1).padStart(2, '0')
   const prefix =
-    dayIndex === 0 ? 'Heute' : dayIndex === 1 ? 'Morgen' : WEEKDAYS[date.getDay()]
+    dayIndex === 0 ? t('today') : dayIndex === 1 ? t('tomorrow') : weekdays()[date.getDay()]
   return `${prefix} ${dd}.${mm}.`
 }
 
@@ -28,13 +27,11 @@ export function levelBar(level: Level): string {
   return '■'.repeat(level) + '□'.repeat(3 - level)
 }
 
-const LEVEL_NAMES = ['-', 'gering', 'mittel', 'hoch'] as const
-
 export function levelName(level: Level): string {
-  return LEVEL_NAMES[level]
+  return t('levels').split(',')[level]
 }
 
-/** Listenzeile Uebersicht: "Gräser  ███  hoch" */
+/** Listenzeile Uebersicht: "Gräser  ■■■  hoch" */
 export function speciesRow(d: SpeciesDay): string {
   return clamp(`${d.species.name}  ${levelBar(d.level)}  ${levelName(d.level)}`, 64)
 }
@@ -42,19 +39,26 @@ export function speciesRow(d: SpeciesDay): string {
 /** Rumpf der Detailseite: Belastung, Spitze, Tagesabschnitte, Hinweis. */
 export function detailBody(d: SpeciesDay): string {
   const [morning, noon, evening] = d.parts
-  const peak = d.level > 0 ? `${levelName(d.level)} (Spitze ${Math.round(d.peak)}/m³)` : 'keine'
+  const peak =
+    d.level > 0
+      ? t('detailPeak', { lvl: levelName(d.level), peak: Math.round(d.peak) })
+      : t('detailNone')
+  const partLabels = [t('morning'), t('noon'), t('evening')]
+  const width = Math.max(...partLabels.map((l) => l.length)) + 2
+  const line = (label: string, lvl: Level): string =>
+    `${label.padEnd(width)}${levelBar(lvl)}  ${levelName(lvl)}`
   return [
-    `Belastung: ${peak}`,
+    peak,
     '',
-    `Früh     ${levelBar(morning)}  ${levelName(morning)}`,
-    `Mittags  ${levelBar(noon)}  ${levelName(noon)}`,
-    `Abends   ${levelBar(evening)}  ${levelName(evening)}`,
+    line(partLabels[0], morning),
+    line(partLabels[1], noon),
+    line(partLabels[2], evening),
     '',
-    'Doppeltipp: zurück',
+    t('tipBack'),
   ].join('\n')
 }
 
 /** Titel der Uebersicht: "POLLEN  Heute 27.07. (ca.)" */
 export function overviewTitle(day: DayForecast, dayIndex: number, approx: boolean): string {
-  return clamp(`POLLEN  ${dayLabel(day.date, dayIndex)}${approx ? ' (ca.)' : ''}`, 200)
+  return clamp(`${t('title')}  ${dayLabel(day.date, dayIndex)}${approx ? ' (ca.)' : ''}`, 200)
 }
