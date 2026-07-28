@@ -14,7 +14,7 @@ import {
   waitForEvenAppBridge,
   OsEventTypeList,
 } from '@evenrealities/even_hub_sdk'
-import { getLocation, type GeoResult } from './location'
+import { getLocation, placeName, type GeoResult } from './location'
 import { pollenForecast, type DayForecast, type SpeciesDay } from './pollen'
 import { clamp, dayLabel, detailBody, overviewTitle, speciesRow } from './format'
 import { t } from './i18n'
@@ -26,6 +26,7 @@ const TITLE = t('title')
 type OverviewState = {
   name: 'overview'
   geo: GeoResult
+  place: string | null
   days: DayForecast[]
   dayIndex: number
 }
@@ -64,7 +65,11 @@ async function main(): Promise<void> {
 
       phone.setStatus(t('loadingForecast'))
       await view.text(TITLE, t('loadingForecast'))
-      const days = await pollenForecast(geo.lat, geo.lon)
+      // Ortsname parallel zur Vorhersage; er ist optional (null bei Fehler).
+      const [days, place] = await Promise.all([
+        pollenForecast(geo.lat, geo.lon),
+        placeName(geo),
+      ])
 
       if (days.length === 0) {
         phone.setStatus(t('noData'))
@@ -72,8 +77,8 @@ async function main(): Promise<void> {
         await renderError()
         return
       }
-      phone.setForecast(days[0], geo)
-      state = { name: 'overview', geo, days, dayIndex: 0 }
+      phone.setForecast(days[0], geo, place)
+      state = { name: 'overview', geo, place, days, dayIndex: 0 }
       await renderOverview()
     } catch (e) {
       phone.setStatus(t('phLoadError', { msg: errMsg(e) }))
@@ -89,7 +94,7 @@ async function main(): Promise<void> {
   async function renderOverview(): Promise<void> {
     if (state.name !== 'overview') return
     const day = state.days[state.dayIndex]
-    const title = overviewTitle(day, state.dayIndex, state.geo.source === 'ip')
+    const title = overviewTitle(day, state.dayIndex, state.geo.source === 'ip', state.place)
     const nextIndex = (state.dayIndex + 1) % state.days.length
     const nextDay = state.days[nextIndex]
     // Zeile 0 = No-Op-Kopfzeile (Firmware-Auto-Select), Arten ab Zeile 1,

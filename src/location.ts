@@ -5,10 +5,12 @@
 //   2. navigator.geolocation     — GPS der WebView (nur bei sicherem Origin)
 //   3. IP-Geolocation            — grober Fallback (ipwho.is, dann ipapi.co)
 // Fuer (1) muss in app.json die "location"-Permission stehen.
-// Identisch zu abfahrtszeit-g2 -> Kandidat fuer evenapps-ui.
+// Basis identisch zu abfahrtszeit-g2 -> Kandidat fuer evenapps-ui;
+// zusaetzlich hier: placeName() (Reverse-Geocoding fuer die Titelzeile).
 
 import { AppLocationAccuracy } from '@evenrealities/even_hub_sdk'
 import { fetchJson } from './http'
+import { LOCALE } from './i18n'
 
 export interface GeoResult {
   lat: number
@@ -91,6 +93,26 @@ async function ipGeolocation(): Promise<GeoResult> {
     return { lat: d.latitude, lon: d.longitude, source: 'ip', label: d.city }
   }
   throw new Error('IP-Standort fehlgeschlagen')
+}
+
+/** Ortsname zu einem Standort, fuer die Titelzeile. IP-Ortung bringt die
+ *  Stadt schon mit; sonst Reverse-Geocoding ueber BigDataCloud (key-frei,
+ *  CORS `*`, fuer Client-Betrieb gedacht, localityLanguage folgt der
+ *  App-Sprache). Fehler -> null, die App laeuft ohne Ortsnamen weiter. */
+export async function placeName(geo: GeoResult): Promise<string | null> {
+  if (geo.label) return geo.label
+  try {
+    const d = (await fetchJson(
+      'https://api.bigdatacloud.net/data/reverse-geocode-client' +
+        `?latitude=${geo.lat.toFixed(4)}&longitude=${geo.lon.toFixed(4)}` +
+        `&localityLanguage=${LOCALE}`,
+      6000,
+    )) as any
+    const name = d?.city || d?.locality || d?.principalSubdivision
+    return typeof name === 'string' && name.length ? name : null
+  } catch {
+    return null
+  }
 }
 
 /** Bester verfuegbarer Standort: URL-Override, native App-Ortung, WebView-GPS, IP. */

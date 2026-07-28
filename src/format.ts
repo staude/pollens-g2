@@ -58,7 +58,16 @@ export function detailBody(d: SpeciesDay): string {
   ].join('\n')
 }
 
-/** Titel der Uebersicht: "POLLEN  Heute 27.07. (ca.)" */
-export function overviewTitle(day: DayForecast, dayIndex: number, approx: boolean): string {
-  return clamp(`${t('title')}  ${dayLabel(day.date, dayIndex)}${approx ? ' (ca.)' : ''}`, 200)
+/** Titel der Uebersicht: "POLLEN  Heute 27.07.  Ansbach (ca.)" */
+export function overviewTitle(
+  day: DayForecast,
+  dayIndex: number,
+  approx: boolean,
+  place: string | null,
+): string {
+  const loc = place ? `  ${clamp(place, 18)}` : ''
+  return clamp(
+    `${t('title')}  ${dayLabel(day.date, dayIndex)}${loc}${approx ? ' (ca.)' : ''}`,
+    200,
+  )
 }

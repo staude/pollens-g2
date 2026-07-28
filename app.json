@@ -19,6 +19,7 @@
       "desc": "Lädt die Pollenvorhersage von Open-Meteo.",
       "whitelist": [
         "https://air-quality-api.open-meteo.com",
+        "https://api.bigdatacloud.net",
         "https://ipwho.is",
         "https://ipapi.co"
       ]

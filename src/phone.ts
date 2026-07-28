@@ -74,7 +74,7 @@ const ICON_SVG = `
 
 export interface PhoneUi {
   setStatus(text: string): void
-  setForecast(today: DayForecast, geo: GeoResult): void
+  setForecast(today: DayForecast, geo: GeoResult, place: string | null): void
 }
 
 /** Baut die Handy-Seite in #app auf. Sofort aufrufen (vor dem Bridge-Await),
@@ -106,8 +106,9 @@ export function initPhoneUi(): PhoneUi {
     setStatus(text: string): void {
       statusEl.textContent = text
     },
-    setForecast(today: DayForecast, geo: GeoResult): void {
+    setForecast(today: DayForecast, geo: GeoResult, place: string | null): void {
       const src = geo.source === 'ip' ? t('phApprox') : ''
+      const loc = place ? `<b>${escapeHtml(place)}</b> &ndash; ` : ''
       const worst = today.species[0]
       const summary =
         worst && worst.level > 0
@@ -116,7 +117,7 @@ export function initPhoneUi(): PhoneUi {
               lvl: levelName(worst.level),
             })
           : t('phNone')
-      statusEl.innerHTML = `${summary}${src} ${t('phOnGlasses')}`
+      statusEl.innerHTML = `${loc}${summary}${src} ${t('phOnGlasses')}`
       rowsEl.innerHTML = today.species
         .map((d) => {
           const lvl = levelName(d.level)
