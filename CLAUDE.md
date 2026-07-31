@@ -69,6 +69,11 @@ uebernommen -> Kandidaten fuer das Shared-Paket `evenapps-ui`
 - Standort wie abfahrtszeit-g2: primaer `bridge.getAppLocation()`,
   Fallback navigator.geolocation (nur sicherer Origin), dann IP
   (ipwho.is, ipapi.co — beide in der network-whitelist).
+- Ortsname in der Titelzeile: Reverse-Geocoding ueber BigDataCloud
+  (`api.bigdatacloud.net/data/reverse-geocode-client`, key-frei, CORS `*`,
+  localityLanguage folgt der App-Sprache; in der Whitelist). IP-Ortung
+  bringt die Stadt schon mit. Optional: bei Fehler laeuft die App ohne
+  Ortsnamen weiter (place = null).
 - Navigation: Einfachtipp waehlt, Doppeltipp zurueck bzw. beendet auf der
   Uebersicht. Text-Detailseite scrollt auf Hardware NICHT — Rumpf ist
   bewusst kurz gehalten (7 Zeilen).
