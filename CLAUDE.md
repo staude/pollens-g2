@@ -28,6 +28,14 @@ Daten von Open-Meteo (Air-Quality-API, CAMS-Europa-Modell).
   (globales `evenhub`-Binary, NICHT `npx evenhub` - das sucht ein npm-Paket).
 - Einreichen im Dev Portal (hub.evenrealities.com). Icon `docs/icon-24.png`
   dort hochladen (steckt nicht in der .ehpk).
+- Store-Screenshots: die ROHEN Simulator-PNGs (`/api/screenshot/glasses`,
+  RGBA, Alpha = Leuchtmaske) unbearbeitet hochladen — NICHT auf
+  Schwarz/Weiss einbrennen und keinen --glow-Modus nutzen. Review 2026-07-31
+  lehnte eingebrannte Schwarz-Varianten ab ("use the simulator (latest
+  version)"); das akzeptierte dorfkino-Format ist das Roh-RGBA.
+  Simulator vorher aktualisieren (npm -g). Beim Beenden das echte Binary
+  killen (`pkill -f sim-darwin-arm64`) — die Shim-PID hinterlaesst sonst
+  eine Waise, die den Automation-Port haelt und alte Screenshots liefert.
 
 ## Architektur
 
