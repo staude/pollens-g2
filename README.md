@@ -1,64 +1,64 @@
-# PolLens (pollens-g2)
+# pollens-g2
 
-Even-G2-Plugin: Pollenflug im Blick — direkt auf der Brille.
-
-Zeigt die Pollenbelastung am eigenen Standort für sechs Pollenarten
-(Gräser, Birke, Erle, Beifuß, Ambrosia, Olive) als Belastungsstufen
-(gering/mittel/hoch) für heute und die nächsten drei Tage. Ein Tipp auf
-eine Pollenart öffnet den Tagesverlauf (früh/mittags/abends).
+**PolLens** — Pollenflug im Blick, direkt auf der Even-Realities-G2-Brille.
+Ablauf: Standort bestimmen -> Pollenbelastung für sechs Arten (Gräser,
+Birke, Erle, Beifuß, Ambrosia, Olive) als Stufen gering/mittel/hoch,
+absteigend nach Belastung sortiert -> Art antippen -> Tagesverlauf
+(früh/mittags/abends); die unterste Listenzeile blättert durch heute + 3
+Folgetage.
 
 Daten: [Open-Meteo Air-Quality-API](https://open-meteo.com/en/docs/air-quality-api)
 (CAMS-Europa-Modell, CC BY 4.0, ohne API-Key). Abdeckung: Europa.
 
-Zweisprachig (Deutsch/Englisch): Sprache folgt der Systemsprache des
-Handys, Fallback Englisch. Test-Override: `?lang=de` bzw. `?lang=en`.
+## Screenshots
 
-## Setup
+Brillen-Display (576 x 288, monochrom grün):
 
-```bash
-./setup.sh
-```
+| Übersicht (heute) | Tagesverlauf einer Art |
+|---|---|
+| ![Übersicht](docs/store-overview-de.png) | ![Detail](docs/store-detail-de.png) |
 
-(oder `npm install`; Node 20 LTS oder 22+)
+Die Blockbalken (■/□) zeigen die Belastungsstufe; die Übersicht sortiert
+die stärkste Belastung nach oben.
 
-## Entwicklung
+## Bedienung auf der Brille
 
-```bash
-npm run dev
-```
+| Eingabe | Wirkung |
+|---|---|
+| Swipe hoch/runter | Liste scrollen |
+| Einfachtipp | Pollenart -> Tagesverlauf; unterste Zeile: nächster Tag |
+| Doppeltipp | zurück; auf der Übersicht: Plugin beenden |
 
-und in einem zweiten Terminal:
+## Setup und Start
 
-```bash
-evenhub-simulator http://localhost:5173
-```
-
-Test-Standort per URL-Parameter: `http://localhost:5173/?lat=49.31&lon=10.63`
-
-## Auf die Brille (Prototype)
-
-```bash
-evenhub qr --url "http://<LAN-IP>:5173"
-```
-
-QR-Code in der Even-Realities-App scannen (Developer Mode nötig).
+- Installieren: `./setup.sh` (oder `npm install`; Node 20 LTS oder 22+)
+- Lokal starten: `npm run dev` und in einem zweiten Terminal
+  `evenhub-simulator http://localhost:5173`
+- Typecheck: `npm run typecheck`
+- Auf die Brille: `evenhub qr --url "http://<LAN-IP>:5173"` und den QR-Code
+  in der Even-Realities-App scannen (Developer Mode nötig)
+- Test-Standort: `?lat=49.31&lon=10.63`; Sprache erzwingen: `?lang=de|en`
 
 ## Deploy
 
-```bash
-npm run build
-evenhub pack app.json dist -o pollens-g2.ehpk
-```
+- Packen: `npm run build`, dann
+  `evenhub pack app.json dist -o pollens-g2.ehpk` (globales `evenhub`,
+  nicht `npx`). Einreichen im Dev Portal (hub.evenrealities.com); das
+  Menü-Icon `docs/icon-24.png` wird dort separat hochgeladen.
 
-Einreichen im Dev Portal (hub.evenrealities.com).
+## Besonderheiten
 
-## Bedienung
-
-| Geste | Aktion |
-|---|---|
-| Wischen | Liste scrollen |
-| Tippen | Pollenart öffnen (Tagesverlauf); unterste Zeile: nächster Tag |
-| Doppeltippen | zurück / beenden |
-
-Hinweis: Die Belastungsstufen sind Näherungswerte aus Konzentrationen
-(Körner/m³), keine medizinische Beratung.
+- `package_id`: `net.staude.pollensg2`
+- Die Belastungsstufen sind Näherungswerte aus Konzentrationen (Körner/m³)
+  mit artspezifischen Schwellen — keine offizielle DWD-Skala und keine
+  medizinische Beratung.
+- Pollen liefert die API nur für Europa; außerhalb meldet das Plugin einen
+  Fehler statt leerer Werte.
+- Standort-Reihenfolge: `?lat/?lon`-Override -> `bridge.getAppLocation()`
+  -> `navigator.geolocation` -> IP-Ortung; Ortsname per Reverse-Geocoding
+  (BigDataCloud, optional).
+- Balken-Zeichen sind ■/□ statt █/░ — die Schattierungsblöcke fehlen im
+  G2-Font.
+- Firmware-Listen: Zeile 0 ist eine No-Op-Kopfzeile (Auto-Select-Falle),
+  echte Einträge ab Zeile 1.
+- Zweisprachig de/en; Sprache folgt der Systemsprache des Handys.
